@@ -1,0 +1,80 @@
+name: fastRepo
+
+on:
+  push:
+    branches:
+      - main  # 你可以根据需要修改触发分支
+    paths-ignore:   # 下列文件的变更不触发部署，可以自行添加
+      - README.md
+  workflow_dispatch:
+
+env:
+  Repo_Title: caofangkuai Repo
+
+jobs:
+  generate-html:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate HTML files
+        run: |
+          #!/bin/bash
+          
+          # 配置
+          target_directory="$GITHUB_WORKSPACE"
+          title="$Repo_Title"
+
+          traverse_directory() {
+            local directory=\$1
+            for item in "$directory"/*
+            do
+              if [ -d "$item" ]; then
+                echo "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/><title>${title}</title><style>body{background:#fff}</style></head><body><header><h1>${title}</h1></header><hr/><main><pre><a href=\"../index.html\">../</a><br>" > "$item/index.html"
+                for file in `ls $item`
+                do
+                  if [ -f "$item/$file" ]; then
+                    if [ "$file" != "index.html" ]; then
+                      echo "<a href=\"$(basename $file)\">$file</a><br>" >> "$item/index.html"
+                    fi
+                  elif [ -d "$item/$file" ]; then
+                    echo "<a href=\"$(basename $file)/index.html\">$file</a><br>" >> "$item/index.html"
+                  fi
+                done
+                echo "</pre></main><hr/></body></html>" >> "$item/index.html"
+                traverse_directory "$item"
+              fi
+            done
+          }
+
+          # 开始
+          echo "开始生成html"
+          # 生成根目录index.html
+          echo "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/><title>${title}</title><style>body{background:#fff}</style></head><body><header><h1>${title}</h1></header><hr/><main><pre>" > "$target_directory/index.html"
+          for file2 in `ls $target_directory`
+          do
+            if [ -f "$target_directory/$file2" ]; then
+              if [ "$file2" != "index.html" ]; then
+                echo "<a href=\"$(basename $file2)\">$file2</a><br>" >> "$target_directory/index.html"
+              fi
+            elif [ -d "$target_directory/$file2" ]; then
+              echo "<a href=\"$(basename $file2)/index.html\">$file2</a><br>" >> "$target_directory/index.html"
+            fi
+          done
+          echo "</pre></main><hr/></body></html>" >> "$target_directory/index.html"
+          
+          # 生成其他目录的 HTML 文件
+          traverse_directory "$target_directory"
+          echo "html生成完成"
+
+      # 部署到 GitHub pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3 # 使用部署到 GitHub pages 的 action
+        with:
+          publish_dir: ./dist # 部署打包后的 dist 目录
+          github_token: ${{ secrets.DEPLOY_SECRET }} # secret 名
+          user_name: ${{ secrets.MY_USER_NAME }}
+          user_email: ${{ secrets.MY_USER_EMAIL }}
+          commit_message: 自动部署 # 部署时的 git 提交信息，自由填写
