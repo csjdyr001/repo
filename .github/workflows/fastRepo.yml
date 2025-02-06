@@ -12,14 +12,17 @@ env:
   Repo_Title: caofangkuai Repo
 
 jobs:
-  generate-html:
+  build:
     runs-on: ubuntu-latest
+    name: fastRepo
+    permissions:
+      contents: write # 确保有写权限
 
     steps:
-      - name: Checkout
+      - name: 克隆仓库
         uses: actions/checkout@v2
 
-      - name: Generate HTML files
+      - name: 生成HTML文件
         run: |
           #!/bin/bash
           
@@ -72,10 +75,10 @@ jobs:
           echo "html生成完成"
 
       # 部署到 GitHub pages
-      - name: Deploy
+      - name: 部署
         uses: peaceiris/actions-gh-pages@v3 # 使用部署到 GitHub pages 的 action
         with:
-          publish_dir: ./dist # 部署打包后的 dist 目录
+          publish_dir: ./ # 部署打包后的目录
           github_token: ${{ secrets.DEPLOY_SECRET }} # secret 名
           user_name: ${{ secrets.MY_USER_NAME }}
           user_email: ${{ secrets.MY_USER_EMAIL }}
