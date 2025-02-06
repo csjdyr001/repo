@@ -44,7 +44,7 @@ jobs:
                       echo "<a href=\"$(basename $file)\">$file</a><br>" >> "$item/index.html"
                     fi
                   elif [ -d "$item/$file" ]; then
-                    echo "<a href=\"$(basename $file)/index.html\">$file</a><br>" >> "$item/index.html"
+                    echo "<a href=\"$(basename $file)/index.html\">$file/</a><br>" >> "$item/index.html"
                   fi
                 done
                 echo "</pre></main><hr/></body></html>" >> "$item/index.html"
@@ -65,7 +65,7 @@ jobs:
                 echo "<a href=\"$(basename $file2)\">$file2</a><br>" >> "$target_directory/index.html"
               fi
             elif [ -d "$target_directory/$file2" ]; then
-              echo "<a href=\"$(basename $file2)/index.html\">$file2</a><br>" >> "$target_directory/index.html"
+              echo "<a href=\"$(basename $file2)/index.html\">$file2/</a><br>" >> "$target_directory/index.html"
             fi
           done
           echo "</pre></main><hr/></body></html>" >> "$target_directory/index.html"
