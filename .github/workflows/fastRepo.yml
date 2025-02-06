@@ -24,7 +24,7 @@ jobs:
           #!/bin/bash
           
           # 配置
-          target_directory="$GITHUB_WORKSPACE"
+          target_directory="./"
           title="$Repo_Title"
 
           traverse_directory() {
